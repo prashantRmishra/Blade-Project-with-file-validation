@@ -125,29 +125,61 @@ public class LoginDaoImpl implements LoginDAO {
 */
     @Override
     public boolean uploadCustomerUserList() {
+        int result;
+        result=validateUploadCustomerUserList();
+        return result>0 ? true : false;
+    }
+
+    public int validateUploadCustomerUserList(){
         BufferedReader br = null;
+        String headerRow []=null;
         String row = null;
         String rowArr[]=null;
-        List<String> ruleList = new ArrayList<>();
+        int rowNo=0;
+        List<String> headerRuleList = new ArrayList<>();
+        List<String> valueSizeRuleList = new ArrayList<>();
+        List<String> valueTypeRuleList = new ArrayList<>();
         try {
-            br = databaseConfig.getPropFileReader().getFileName();
-            while((row=br.readLine())!=null){//single row in Stringr:ow
+            br = databaseConfig.getPropFileReader().getFileName();//fetching file to buffer in br 
+            headerRuleList=databaseConfig.getPropFileReader().getRules("column_header");//fetching column_header rules from json file
+            valueSizeRuleList=databaseConfig.getPropFileReader().getRules("column_value_length");
+            valueTypeRuleList=databaseConfig.getPropFileReader().getRules("column_value_datatype");
+            headerRow = br.readLine().split(",");
+            /**
+             * Below if Block is to validate header of the .csv file
+            */
+            if(headerRow!=null && headerRuleList!=null){
+                if(headerRuleList.size()!=headerRow.length){
+                    System.out.println("Number of column mismatch: required "+headerRuleList.size()+" found "+headerRow.length);
+                }
+                else {
+                    for(int headerIndex=0;headerIndex<headerRuleList.size();headerIndex++){
+                        if(!headerRow[headerIndex].equals(headerRuleList.get(headerIndex))){
+                            System.out.println("Column Header'"+headerRow[headerIndex]+"' does not match with '"+headerRuleList.get(headerIndex)+"'");
+                        }
+                    }
+                }
+                rowNo+=1;
+            }
+            /**
+             * Below while loop is to validate length of values
+            */
+            while((row=br.readLine())!=null){//single row in String:row
+                rowNo+=1;
                 rowArr = row.split(","); // single row array in array :rowArr
-                for (String r : rowArr) {
-                    System.out.print(r+" ");
+                for(int valueIndex=0;valueIndex<rowArr.length;valueIndex++){
+                    if(rowArr[valueIndex].length() > Integer.parseInt(valueSizeRuleList.get(valueIndex))){
+                       System.out.println("Length of value "+rowArr[valueIndex]+" shouldn't be more than "+Integer.parseInt(valueSizeRuleList.get(valueIndex))+" r:c->"+rowNo+":"+(valueIndex+1));
+                    }
                 }
                 System.out.println();
                 
-            }
-            ruleList=databaseConfig.getPropFileReader().getRules("column_header");
-            for (String column : ruleList) {
-                System.out.print(column+" ");
             }
             br.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return rowArr.equals(null) ? false :true;
+        return 1;
     }
 
    
