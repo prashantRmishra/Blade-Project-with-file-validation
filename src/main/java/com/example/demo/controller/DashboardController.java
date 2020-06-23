@@ -1,27 +1,66 @@
 package com.example.demo.controller;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 import com.blade.ioc.annotation.Inject;
 import com.blade.mvc.annotation.GetRoute;
 import com.blade.mvc.annotation.JSON;
 import com.blade.mvc.annotation.Path;
 import com.blade.mvc.annotation.PathParam;
+import com.blade.mvc.annotation.PostRoute;
+import com.blade.mvc.http.Request;
 import com.example.demo.service.LoginService;
 
 @Path
 public class DashboardController {
     @Inject
     LoginService loginService;
+
     @GetRoute("/getIframeUrl/:iframeID")
     @JSON
-    public String getIframeUrl(@PathParam int iframeID){
-        String iframeURL=null;
-        
+    public String getIframeUrl(@PathParam int iframeID) {
+        String iframeURL = null;
+
         try {
-            iframeURL=loginService.getIFrameUrl(iframeID);
-            
+            iframeURL = loginService.getIFrameUrl(iframeID);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         return iframeURL;
     }
+
+    @PostRoute("/delete/:iframeId")
+    public void delete(@PathParam int iframeId){
+        try {
+            boolean result;
+            result=loginService.deleteRecord(iframeId);
+            System.out.println(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @PostRoute("/upload")
+    public void upload(Request request) {
+        System.out.println("in upload function");
+        request.fileItem("upload").ifPresent(fileItem -> {
+            try {
+                boolean result;
+                fileItem.moveTo(new File(fileItem.getFileName()));
+                System.out.println("file recieved "+fileItem.getFileName());
+                File file = new File(fileItem.getFileName());
+                FileReader fileReader = new FileReader(file);
+                BufferedReader projectCustomerList = new BufferedReader(fileReader);
+                result = loginService.uploadCustomerUserList(projectCustomerList);
+                System.out.println("status:"+result);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
 }

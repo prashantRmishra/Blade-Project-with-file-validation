@@ -109,7 +109,7 @@ public class LoginDaoImpl implements LoginDAO {
        result+=getTransactionTemplate().execute(status->{
            int row=0;
            try {
-            row+=getJdbctemplate().update("update tb_iframe_details set delete_flag=? where \"iframeID\"=?", new Object[]{true,iframeID});
+            row+=getJdbctemplate().update("update tb_iframe_details set delete_flag=? where \"iframeID\"=? and delete_flag=?", new Object[]{true,iframeID,false});
            
            } catch (Exception e) {
                status.setRollbackOnly();
@@ -124,38 +124,49 @@ public class LoginDaoImpl implements LoginDAO {
  * @return Boolean for failur or succcess of transaction
 */
     @Override
-    public boolean uploadCustomerUserList() {
+    public boolean uploadCustomerUserList(BufferedReader projectCustomerList) {
         int result;
-        result=validateUploadCustomerUserList();
+        result=validateUploadCustomerUserList(projectCustomerList);
         return result>0 ? true : false;
     }
-
-    public int validateUploadCustomerUserList(){
+    /**
+     * This method validation our .csv file as per rules in .json file
+     * @param uploadCustomerUserList is buffered file for validation
+     * @return int value 0 validation success and 1 for otherwise
+    */
+    public int validateUploadCustomerUserList(BufferedReader projectCustomerList){
         BufferedReader br = null;
         String headerRow []=null;
         String row = null;
         String rowArr[]=null;
         int rowNo=0;
+        int result=1;
         List<String> headerRuleList = new ArrayList<>();
         List<String> valueSizeRuleList = new ArrayList<>();
         List<String> valueTypeRuleList = new ArrayList<>();
         try {
-            br = databaseConfig.getPropFileReader().getFileName();//fetching file to buffer in br 
-            headerRuleList=databaseConfig.getPropFileReader().getRules("column_header");//fetching column_header rules from json file
+           // br = databaseConfig.getPropFileReader().getFileName();//fetching file to buffer in br, static way by initializing the file on lod of app
+            br=projectCustomerList; // buffered File as parameter
+
+            //below three lines are for fetching rules from.json file
+            headerRuleList=databaseConfig.getPropFileReader().getRules("column_header");
             valueSizeRuleList=databaseConfig.getPropFileReader().getRules("column_value_length");
             valueTypeRuleList=databaseConfig.getPropFileReader().getRules("column_value_datatype");
             headerRow = br.readLine().split(",");
+
             /**
              * Below if Block is to validate header of the .csv file
             */
             if(headerRow!=null && headerRuleList!=null){
                 if(headerRuleList.size()!=headerRow.length){
                     System.out.println("Number of column mismatch: required "+headerRuleList.size()+" found "+headerRow.length);
+                    result-=1;
                 }
                 else {
                     for(int headerIndex=0;headerIndex<headerRuleList.size();headerIndex++){
                         if(!headerRow[headerIndex].equals(headerRuleList.get(headerIndex))){
                             System.out.println("Column Header'"+headerRow[headerIndex]+"' does not match with '"+headerRuleList.get(headerIndex)+"'");
+                            result-=1;
                         }
                     }
                 }
@@ -170,6 +181,7 @@ public class LoginDaoImpl implements LoginDAO {
                 for(int valueIndex=0;valueIndex<rowArr.length;valueIndex++){
                     if(rowArr[valueIndex].length() > Integer.parseInt(valueSizeRuleList.get(valueIndex))){
                        System.out.println("Length of value "+rowArr[valueIndex]+" shouldn't be more than "+Integer.parseInt(valueSizeRuleList.get(valueIndex))+" r:c->"+rowNo+":"+(valueIndex+1));
+                       result-=1;
                     }
                 }
                 System.out.println();
@@ -179,7 +191,7 @@ public class LoginDaoImpl implements LoginDAO {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return 1;
+        return result;
     }
 
    

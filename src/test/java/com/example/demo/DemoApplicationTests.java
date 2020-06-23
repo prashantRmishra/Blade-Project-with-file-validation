@@ -3,6 +3,11 @@ package com.example.demo;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+
 import com.example.demo.config.DatabaseConfig;
 import com.example.demo.config.PTransactionManagerConfig;
 import com.example.demo.dao.LoginDaoImpl;
@@ -22,77 +27,84 @@ class DemoApplicationTests {
     static PropFileReader propFileReader;
 
     /**
- * This method has common operation that are executed before running the tests
- * 
-*/
-	@BeforeAll
-    static void setup(){
+     * This method has common operation that are executed before running the tests
+     * 
+     */
+    @BeforeAll
+    static void setup() {
         BasicDataSource bs = new BasicDataSource();
         bs.setDriverClassName("org.postgresql.Driver");
         bs.setUrl("jdbc:postgresql://localhost:5432/StargateSPA");
         bs.setUsername("postgres");
         bs.setPassword("password");
-        databaseConfig= new DatabaseConfig();
+        databaseConfig = new DatabaseConfig();
         databaseConfig.setDataSource(bs);
-        ptmDataSource= new DataSourceTransactionManager(databaseConfig.getDataSource());
+        ptmDataSource = new DataSourceTransactionManager(databaseConfig.getDataSource());
         pTransactionManagerConfig = new PTransactionManagerConfig();
         pTransactionManagerConfig.setDataSource(ptmDataSource);
         propFileReader = new PropFileReader("src/main/resources/mycsv.csv",
-        "src/main/resources/uploadUserDetailsRule.json");
+                "src/main/resources/uploadUserDetailsRule.json");
         databaseConfig.setPropFileReader(propFileReader);
-        
+
     }
+
     /**
      * This operation is executed after all the tests are excecuted
-    */
+     */
     @AfterAll
-    static void closeup(){
-        databaseConfig=null;
+    static void closeup() {
+        databaseConfig = null;
         System.out.println();
         System.out.println("!!!!!!!!All Test Finished!!!!!!!!");
     }
 
-    /*This test case is to retrive Iframe Url from db
-    */
-	@Test
-	void testIFrameUrl() {
-		LoginDaoImpl loginDaoImpl = new LoginDaoImpl();
+    /*
+     * This test case is to retrive Iframe Url from db
+     */
+    @Test
+    void testIFrameUrl() {
+        LoginDaoImpl loginDaoImpl = new LoginDaoImpl();
         loginDaoImpl.setDatabaseConfig(databaseConfig);
-        String iframeUrl=null;
-        iframeUrl=loginDaoImpl.getIFrameUrlDao(123);
-        System.out.println("Result from testing :"+iframeUrl);
-        assertNotNull(iframeUrl,()->"getIframeUrlDao() should return url");
-   
+        String iframeUrl = null;
+        iframeUrl = loginDaoImpl.getIFrameUrlDao(123);
+        System.out.println("Result from testing :" + iframeUrl);
+        assertNotNull(iframeUrl, () -> "getIframeUrlDao() should return url");
+
     }
 
-    /*This test case is to check insert operation */
+    /* This test case is to check insert operation */
     @Test
-    void testAddIFrameDetails(){
+    void testAddIFrameDetails() {
         boolean result;
         LoginDaoImpl loginDaoImpl = new LoginDaoImpl();
         loginDaoImpl.setDatabaseConfig(databaseConfig);
         loginDaoImpl.setPlatTransactionMngrConfig(pTransactionManagerConfig);
-        result=loginDaoImpl.setIFrameUrlDaoPlatTransacMnger(43,"http://drive.google.com",123);
-        System.out.println("insert operation returns:"+result);
+        result = loginDaoImpl.setIFrameUrlDaoPlatTransacMnger(43, "http://drive.google.com", 123);
+        System.out.println("insert operation returns:" + result);
         assertTrue(result);
-        
+
     }
-    /*This test case is to delete record form the database*/
+
+    /* This test case is to delete record form the database */
     @Test
-    void testDeleteRecord(){
+    void testDeleteRecord() {
         boolean result;
         LoginDaoImpl loginDaoImpl = new LoginDaoImpl();
         loginDaoImpl.setDatabaseConfig(databaseConfig);
         loginDaoImpl.setPlatTransactionMngrConfig(pTransactionManagerConfig);
-        result=loginDaoImpl.deleteRecord(32);
+        result = loginDaoImpl.deleteRecord(32);
         assertTrue(result);
     }
+
     @Test
-    void printFileDetails(){
+    void printFileDetails() throws FileNotFoundException {
         boolean result;
         LoginDaoImpl loginDaoImpl = new LoginDaoImpl();
         loginDaoImpl.setDatabaseConfig(databaseConfig);
-        result=loginDaoImpl.uploadCustomerUserList();
+        File file = new File("src/main/resources/userDetailList.csv");
+        FileReader fileForTesting = new FileReader(file);
+        BufferedReader brFile = new BufferedReader(fileForTesting) ; 
+        result=loginDaoImpl.uploadCustomerUserList(brFile);
         assertTrue(result);
 
     }
