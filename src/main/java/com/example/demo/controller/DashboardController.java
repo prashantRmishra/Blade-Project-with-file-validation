@@ -1,17 +1,10 @@
 package com.example.demo.controller;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-
 import com.blade.ioc.annotation.Inject;
 import com.blade.mvc.annotation.GetRoute;
 import com.blade.mvc.annotation.JSON;
 import com.blade.mvc.annotation.Path;
 import com.blade.mvc.annotation.PathParam;
 import com.blade.mvc.annotation.PostRoute;
-import com.blade.mvc.http.Request;
 import com.example.demo.service.LoginService;
 
 @Path
@@ -44,23 +37,23 @@ public class DashboardController {
         }
     }
 
-    @PostRoute("/upload")
-    public void upload(Request request) {
-        System.out.println("in upload function");
-        request.fileItem("upload").ifPresent(fileItem -> {
-            try {
-                boolean result;
-                fileItem.moveTo(new File(fileItem.getFileName()));
-                System.out.println("file recieved "+fileItem.getFileName());
-                File file = new File(fileItem.getFileName());
-                FileReader fileReader = new FileReader(file);
-                BufferedReader projectCustomerList = new BufferedReader(fileReader);
-                result = loginService.uploadCustomerUserList(projectCustomerList);
-                System.out.println("status:"+result);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-    }
+    // @PostRoute("/upload")
+    // public void upload(Request request) {
+    //     System.out.println("in upload function");
+    //     request.fileItem("upload").ifPresent(fileItem -> {
+    //         try {
+    //             boolean result;
+    //             fileItem.moveTo(new File(fileItem.getFileName()));
+    //             System.out.println("file recieved "+fileItem.getFileName());
+    //             File file = new File(fileItem.getFileName());
+    //             // FileReader fileReader = new FileReader(file);
+    //             // BufferedReader projectCustomerList = new BufferedReader(fileReader);
+    //             result = loginService.uploadCustomerUserList(file);
+    //             System.out.println("status:"+result);
+    //         } catch (IOException e) {
+    //             e.printStackTrace();
+    //         }
+    //     });
+    // }
 
 }

@@ -1,6 +1,4 @@
 package com.example.demo.dao;
-
-import java.io.BufferedReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -84,9 +82,9 @@ public class LoginDaoImpl implements LoginDAO {
     public boolean setIFrameUrlDaoPlatTransacMnger(int pkey, String iframeUrl,int iframeID) {
         int result=0;
         result+=getTransactionTemplate().execute(status->{
-            int row=0,iframeOp=0;
+            int row=0;
             try {
-                iframeOp+=getJdbctemplate().update("insert into iframe_op values(?,?)", new Object[]{33,true});
+                //iframeOp+=getJdbctemplate().update("insert into iframe_op values(?,?)", new Object[]{33,true});
                 row+=getJdbctemplate().update("insert into tb_iframe_details values(?,?,?,?) ", new Object[]{pkey,iframeUrl,iframeID,false});
                 
             } catch (Exception e) {
@@ -119,81 +117,6 @@ public class LoginDaoImpl implements LoginDAO {
        });
         return 0<result;
     }
-/**
- * This function is for validating the .csv file and then storing it in db.
- * @return Boolean for failur or succcess of transaction
-*/
-    @Override
-    public boolean uploadCustomerUserList(BufferedReader projectCustomerList) {
-        int result;
-        result=validateUploadCustomerUserList(projectCustomerList);
-        return result>0 ? true : false;
-    }
-    /**
-     * This method validation our .csv file as per rules in .json file
-     * @param uploadCustomerUserList is buffered file for validation
-     * @return int value 0 validation success and 1 for otherwise
-    */
-    public int validateUploadCustomerUserList(BufferedReader projectCustomerList){
-        BufferedReader br = null;
-        String headerRow []=null;
-        String row = null;
-        String rowArr[]=null;
-        int rowNo=0;
-        int result=1;
-        List<String> headerRuleList = new ArrayList<>();
-        List<String> valueSizeRuleList = new ArrayList<>();
-        List<String> valueTypeRuleList = new ArrayList<>();
-        try {
-           // br = databaseConfig.getPropFileReader().getFileName();//fetching file to buffer in br, static way by initializing the file on lod of app
-            br=projectCustomerList; // buffered File as parameter
 
-            //below three lines are for fetching rules from.json file
-            headerRuleList=databaseConfig.getPropFileReader().getRules("column_header");
-            valueSizeRuleList=databaseConfig.getPropFileReader().getRules("column_value_length");
-            valueTypeRuleList=databaseConfig.getPropFileReader().getRules("column_value_datatype");
-            headerRow = br.readLine().split(",");
-
-            /**
-             * Below if Block is to validate header of the .csv file
-            */
-            if(headerRow!=null && headerRuleList!=null){
-                if(headerRuleList.size()!=headerRow.length){
-                    System.out.println("Number of column mismatch: required "+headerRuleList.size()+" found "+headerRow.length);
-                    result-=1;
-                }
-                else {
-                    for(int headerIndex=0;headerIndex<headerRuleList.size();headerIndex++){
-                        if(!headerRow[headerIndex].equals(headerRuleList.get(headerIndex))){
-                            System.out.println("Column Header'"+headerRow[headerIndex]+"' does not match with '"+headerRuleList.get(headerIndex)+"'");
-                            result-=1;
-                        }
-                    }
-                }
-                rowNo+=1;
-            }
-            /**
-             * Below while loop is to validate length of values
-            */
-            while((row=br.readLine())!=null){//single row in String:row
-                rowNo+=1;
-                rowArr = row.split(","); // single row array in array :rowArr
-                for(int valueIndex=0;valueIndex<rowArr.length;valueIndex++){
-                    if(rowArr[valueIndex].length() > Integer.parseInt(valueSizeRuleList.get(valueIndex))){
-                       System.out.println("Length of value "+rowArr[valueIndex]+" shouldn't be more than "+Integer.parseInt(valueSizeRuleList.get(valueIndex))+" r:c->"+rowNo+":"+(valueIndex+1));
-                       result-=1;
-                    }
-                }
-                System.out.println();
-                
-            }
-            br.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-   
     
 }

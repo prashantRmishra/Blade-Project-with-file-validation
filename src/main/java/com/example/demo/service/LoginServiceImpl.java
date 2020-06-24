@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import java.io.BufferedReader;
 
 import com.blade.ioc.annotation.Bean;
 import com.blade.ioc.annotation.Inject;
@@ -21,10 +20,5 @@ public class LoginServiceImpl implements LoginService {
         return loginDao.deleteRecord(iframeId);
     }
 
-    @Override
-    public boolean uploadCustomerUserList(BufferedReader projectCustomerList) {
-        
-        return loginDao.uploadCustomerUserList(projectCustomerList);
-    }
     
 }

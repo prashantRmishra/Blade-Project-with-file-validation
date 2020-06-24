@@ -1,5 +1,5 @@
 {
-    "column_header":["id","username","phone no.","address"],
+    "column_header":["id","username","phoneno","address"],
     "column_value_length":["3","10","10","100"],
     "column_value_datatype":["int","String","String","String"]
 }
