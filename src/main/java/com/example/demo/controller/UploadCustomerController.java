@@ -1,8 +1,6 @@
 package com.example.demo.controller;
 
 import java.io.File;
-import java.io.IOException;
-
 import com.blade.ioc.annotation.Inject;
 import com.blade.mvc.annotation.Path;
 import com.blade.mvc.annotation.PostRoute;
