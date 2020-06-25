@@ -1,10 +1,12 @@
 package com.example.demo.controller;
 import com.blade.ioc.annotation.Inject;
+import com.blade.mvc.annotation.BodyParam;
 import com.blade.mvc.annotation.GetRoute;
 import com.blade.mvc.annotation.JSON;
 import com.blade.mvc.annotation.Path;
 import com.blade.mvc.annotation.PathParam;
 import com.blade.mvc.annotation.PostRoute;
+import com.example.demo.model.IFrame;
 import com.example.demo.service.LoginService;
 
 @Path
@@ -37,6 +39,21 @@ public class DashboardController {
         }
     }
 
+    
+    @PostRoute("/api")
+    @JSON
+    public void add(@BodyParam IFrame iFrame){
+        System.out.println("add called "+iFrame.getIFrameId()+" iframe :"+ iFrame);
+        try {
+            boolean result;
+            result=loginService.setIFrameUrlService(iFrame);
+            System.out.println("api add insert status "+result);
+            
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+    }
+    
     // @PostRoute("/upload")
     // public void upload(Request request) {
     //     System.out.println("in upload function");

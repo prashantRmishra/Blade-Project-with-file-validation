@@ -75,7 +75,7 @@ class DemoApplicationTests {
         LoginDaoImpl loginDaoImpl = new LoginDaoImpl();
         loginDaoImpl.setDatabaseConfig(databaseConfig);
         loginDaoImpl.setPlatTransactionMngrConfig(pTransactionManagerConfig);
-        result = loginDaoImpl.setIFrameUrlDaoPlatTransacMnger(85686, "http://drive.google.com", 5433);
+        result = loginDaoImpl.setIFrameUrlDaoPlatTransacMnger(001, "http://drive.google.com", 109);
         System.out.println("insert operation returns:" + result);
         assertTrue(result);
 

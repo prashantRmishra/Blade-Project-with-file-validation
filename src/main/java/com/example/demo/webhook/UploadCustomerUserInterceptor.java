@@ -26,6 +26,7 @@ public class UploadCustomerUserInterceptor implements WebHook {
     }
     @Override
     public boolean before(RouteContext context) {
+        result=0;
         context.request().fileItem("upload").ifPresent(fileItem -> {
             try {
                 result=0;
@@ -40,6 +41,11 @@ public class UploadCustomerUserInterceptor implements WebHook {
                 e.printStackTrace();
             }
         });
+        
+       //for handling iframe details from angular app
+       if(context.uri().equals("/api")){
+           result+=1;
+       }
         return result > 0;
     }
 
