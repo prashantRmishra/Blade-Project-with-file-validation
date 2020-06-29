@@ -54,22 +54,22 @@ public class UploadCustomerDAOImpl implements UploadCustomerDAO {
      */
     @Override
     public boolean uploadCustomerUserList(File projectCustomerList) {
-        //int validationResult, result = 0;
+        int validationResult, result = 0;
 
-        // result+=getTransactionTemplate().execute(status->{
-        // int row=0;
-        // try {
-        // row+=getJdbctemplate().update("copy user_detail_list from
-        // "+projectCustomerList+" delimiter ',' csv header;");
-        // } catch (Exception e) {
-        // status.setRollbackOnly();
-        // e.printStackTrace();
-        // row=0;
-        // }
-        // return row;
-        // });
+        result+=getTransactionTemplate().execute(status->{
+            System.out.println("from impl"+projectCustomerList);
+        int row=0;
+        try {
+        row+=getJdbctemplate().update("copy user_detail_list from '"+projectCustomerList+"' delimiter ',' csv header;");
+        } catch (Exception e) {
+        status.setRollbackOnly();
+        e.printStackTrace();
+        row=0;
+        }
+        return row;
+        });
 
-        return true;
+        return result > 0;
     }
 
 }
